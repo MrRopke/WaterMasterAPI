@@ -34,6 +34,25 @@ namespace WaterMasterAPI.Controllers
             }
         }
 
+        [HttpPut]
+        public void UpdateSensor([FromBody] Sensor sensor)
+        {
+            using(SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "UPDATE Sensors SET Name = @Name, LimitUp = @LimitUp, LimitLow = @LimitLow WHERE MacAddress = '" + sensor.MacAddress + "'";
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                cmd.Parameters.AddWithValue("@Name", sensor.Name);
+                cmd.Parameters.AddWithValue("@LimitUp", sensor.LimitUp);
+                cmd.Parameters.AddWithValue("@LimitLow", sensor.LimitLow);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        [HttpGet]
         public SensorData GetSensorData(string MacAddress)
         {
             SensorData sd = null;
@@ -61,9 +80,9 @@ namespace WaterMasterAPI.Controllers
             return sd;
         }
 
-        //Okay
         // GET: api/Sensor/5
-        [HttpGet("{MacAddress}", Name = "Get")]
+        [HttpGet]
+        [Route("Mac/{MacAddress}")]
         public Sensor GetSensor(string MacAddress)
         {
             SensorData sd = GetSensorData(MacAddress);
@@ -91,33 +110,33 @@ namespace WaterMasterAPI.Controllers
             return sensor;
         }
 
-        //// GET: api/Sensor/5
-        //[HttpGet("{UserId}", Name = "Get")]
-        //public List<string> GetSensorsMacAddress(int UserId)
-        //{
-        //    List<string> macAddress = new List<string>();
+        //GET: api/Sensor/5
+        [HttpGet("{UserId}", Name = "GetMacs")]
+        [Route("UserId/{UserId}")]
+        public List<string> GetSensorsMacAddress(int UserId)
+        {
+            List<string> macAddress = new List<string>();
 
-        //    using (SqlConnection conn = new SqlConnection(connString))
-        //    {
-        //        conn.Open();
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
 
-        //        string sqlString = "SELECT MacAddress FROM SENSORS WHERE sensors.FK_UserId = " + UserId;
-        //        SqlCommand cmd = new SqlCommand(sqlString, conn);
+                string sqlString = "SELECT MacAddress FROM SENSORS WHERE sensors.FK_UserId = " + UserId;
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
 
-        //        SqlDataReader reader = cmd.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
 
-        //        if (reader.HasRows)
-        //        {
-        //            while (reader.Read())
-        //            {
-        //                macAddress.Add(reader.ToString());
-        //            }
-        //        }
-
-        //        reader.Close();
-        //    }
-        //    return macAddress;
-        //}
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        macAddress.Add(reader[0].ToString());
+                    }
+                }
+                reader.Close();
+            }
+            return macAddress;
+        }
 
 
 
