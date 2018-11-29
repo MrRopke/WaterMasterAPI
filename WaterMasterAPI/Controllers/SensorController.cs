@@ -34,6 +34,28 @@ namespace WaterMasterAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("PostSensor/")]
+        public void PostSensor([FromBody] Sensor sensor)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "INSERT INTO Sensors VALUES (@MacAddress, @Name, @LimitUp, @LimitLow, @FK_UserId)";
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                cmd.Parameters.AddWithValue("@MacAddress", sensor.MacAddress);
+                cmd.Parameters.AddWithValue("@Name", sensor.Name);
+                cmd.Parameters.AddWithValue("@LimitUp", sensor.LimitUp);
+                cmd.Parameters.AddWithValue("@LimitLow", sensor.LimitLow);
+                cmd.Parameters.AddWithValue("@FK_UserId", sensor.FK_UserId);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
         [HttpPut]
         public void UpdateSensor([FromBody] Sensor sensor)
         {
