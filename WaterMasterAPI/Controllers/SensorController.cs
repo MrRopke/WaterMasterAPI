@@ -15,7 +15,8 @@ namespace WaterMasterAPI.Controllers
     {
         private string connString = "Server=tcp:cybonspace.database.windows.net,1433;Initial Catalog=MyDB;Persist Security Info=False;User ID=cybon;Password=Password1234;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         
-        // POST: api/Sensor
+        // POST: api/Sensor 
+        // Refactored over in SensorDataController
         [HttpPost]
         public void PostSensorData([FromBody] SensorData sensorData)
         {
@@ -74,6 +75,7 @@ namespace WaterMasterAPI.Controllers
             }
         }
 
+        // Refactored over in SensorDataController
         [HttpGet]
         public SensorData GetSensorData(string MacAddress)
         {
