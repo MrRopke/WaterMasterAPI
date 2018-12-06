@@ -15,15 +15,59 @@ namespace WaterMasterAPI.Controllers
     public class SensorController : ControllerBase
     {
         private string connString = "Server=tcp:cybonspace.database.windows.net,1433;Initial Catalog=MyDB;Persist Security Info=False;User ID=cybon;Password=Password1234;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-                
-        [HttpPost]
-        public void PostSensor([FromBody] Sensor sensor)
+          
+        
+        public int GetPiId(int id)
+        {
+            int PiId = 0;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string getPortNumberString = "SELECT PiId FROM Users WHERE ID = " + id;
+
+                SqlCommand cmd = new SqlCommand(getPortNumberString, conn);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        PiId = Convert.ToInt32(reader[0]);
+                        //PortNumber = 6000 + Convert.ToInt32(reader[0]) + 1;
+                    }
+                }                
+            }
+            return PiId;
+        }
+
+        public void IncrementID(int PiId, int UserId)
         {
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 conn.Open();
 
-                string sqlString = "INSERT INTO Sensors VALUES (@MacAddress, @Name, @LimitUp, @LimitLow, @FK_UserId)";
+                string IncrementPiIdString = "UPDATE Users SET PiId = " + (PiId + 1) + " WHERE ID = " + UserId;
+
+                SqlCommand cmd = new SqlCommand(IncrementPiIdString, conn);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        [HttpPost]
+        public void PostSensor([FromBody] Sensor sensor)
+        {
+            int id = GetPiId(sensor.FK_UserId);
+            IncrementID(id, sensor.FK_UserId);
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "INSERT INTO Sensors VALUES (@MacAddress, @Name, @LimitUp, @LimitLow, @FK_UserId, @Port)";
                 SqlCommand cmd = new SqlCommand(sqlString, conn);
 
                 cmd.Parameters.AddWithValue("@MacAddress", sensor.MacAddress);
@@ -31,10 +75,13 @@ namespace WaterMasterAPI.Controllers
                 cmd.Parameters.AddWithValue("@LimitUp", sensor.LimitUp);
                 cmd.Parameters.AddWithValue("@LimitLow", sensor.LimitLow);
                 cmd.Parameters.AddWithValue("@FK_UserId", sensor.FK_UserId);
+                cmd.Parameters.AddWithValue("@Port", 6000 + (id + 1));
 
                 cmd.ExecuteNonQuery();
             }
         }
+
+
 
         [HttpPut]
         public void UpdateSensor([FromBody] Sensor sensor)
