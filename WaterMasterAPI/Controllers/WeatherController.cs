@@ -42,7 +42,7 @@ namespace WaterMasterAPI.Controllers
             else if (sensorData.Humidity < sensor.LimitUp)
             {
                 // Get User
-                User user = userController.GetUser(sensor.FK_UserId);
+                User user = userController.GetUserGeo(sensor.FK_UserId);
 
                 // Generate Weathermodels
                 weatherAPI = new WeatherAPI(user.Lat, user.Lon);

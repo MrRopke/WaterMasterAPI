@@ -15,14 +15,35 @@ namespace WaterMasterAPI.Controllers
     {
         private string connString = "Server=tcp:cybonspace.database.windows.net,1433;Initial Catalog=MyDB;Persist Security Info=False;User ID=cybon;Password=Password1234;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         // GET: api/User/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Login(int id)
+        [HttpGet()]
+        [Route("login/{username}&&{password}")]
+        public int Login(string username, string password)
         {
-            return "value";
+            int userId = 0;
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "SELECT id FROM Users WHERE Username = '" + username + "' AND Password = '" + password + "'"; ;
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        userId = Convert.ToInt32(reader[0]);
+                    }
+                }
+                reader.Close();
+            }
+            return userId;
         }
 
-        [HttpGet("{id}", Name = "Get")]
-        public User GetUser(int id)
+        [HttpGet()]
+        [Route("usergeo/{id}")]
+        public User GetUserGeo(int id)
         {
             User user = null;
             using (SqlConnection conn = new SqlConnection(connString))
@@ -38,7 +59,7 @@ namespace WaterMasterAPI.Controllers
                 {
                     while (reader.Read())
                     {
-                        user = new User { Id = Convert.ToInt16(reader[0]), Username = reader[1].ToString(), Password = reader[2].ToString(), Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]) };
+                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]) };
                     }
                 }
                 reader.Close();
