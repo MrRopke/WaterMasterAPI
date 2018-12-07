@@ -28,16 +28,23 @@ namespace WaterMasterAPI.Controllers
 
         // GET: api/Weather
         [HttpGet("{id}", Name = "Get")]
-        public bool StartWatering (string mac)
+        public Watering StartWatering (string mac)
         {
             // make sensor obj
             Sensor sensor = sensorController.GetSensor(mac);
             // make sensorData obj
             SensorData sensorData = sensorDataController.GetSensorData(mac);
 
+            PiPortModel ppm = sensorController.GetPort(sensor.MacAddress);
+
+            Watering wat = new Watering();
+            wat.Port = ppm.Port;
+
             if (sensorData.Humidity < sensor.LimitLow)
             {
-                return true;
+                wat.Water = 1;
+                return wat;
+                //return true;
             }
             else if (sensorData.Humidity < sensor.LimitUp)
             {
@@ -56,11 +63,13 @@ namespace WaterMasterAPI.Controllers
 
                 if (incommingRain <= rainRequirementInMM)
                 {
-                    return true;
+                    wat.Water = 1;
+                    return wat;
                 }
             }
 
-            return false;
+            wat.Water = 0;
+            return wat;
         }
     }
 }

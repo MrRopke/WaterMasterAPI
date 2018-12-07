@@ -99,7 +99,36 @@ namespace WaterMasterAPI.Controllers
 
                 cmd.ExecuteNonQuery();
             }
-        }        
+        }
+
+        // GET: api/Sensor/5
+        [HttpGet]
+        [Route("Port/{MacAddress}")]
+        public PiPortModel GetPort(string macAddress)
+        {
+            PiPortModel ppm = null;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "SELECT Port FROM Sensors WHERE MacAddress = '" + macAddress + "'";
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ppm = new PiPortModel { MacAddress = macAddress, Port = Convert.ToInt32(reader[0]) };
+                    }
+                }
+
+                reader.Close();
+            }
+            return ppm;
+        }
 
         // GET: api/Sensor/5
         [HttpGet]
