@@ -35,21 +35,21 @@ namespace WaterMasterAPI.Controllers
             Sensor sensor = sensorController.GetSensor(mac);
             // make sensorData obj
             SensorData sensorData = sensorDataController.GetSensorData(mac);
+            // Get User
+            User user = userController.GetUserGeo(sensor.FK_UserId);
 
             Watering wat = new Watering();
             wat.Port = sensorController.GetPort(mac).Port;
 
             if (sensorData.Humidity < sensor.LimitLow)
             {
+                userController.UpdateWaterCount(user.Id);
                 wat.Water = 1;
                 return wat;
                 //return true;
             }
             else if (sensorData.Humidity < sensor.LimitUp)
             {
-                // Get User
-                User user = userController.GetUserGeo(sensor.FK_UserId);
-
                 // Generate Weathermodels
                 weatherAPI = new WeatherAPI(user.Lat, user.Lon);
                 WeatherModel weatherModel = weatherAPI.GetForecast();
@@ -62,6 +62,7 @@ namespace WaterMasterAPI.Controllers
 
                 if (incommingRain <= rainRequirementInMM)
                 {
+                    userController.UpdateWaterCount(user.Id);
                     wat.Water = 1;
                     return wat;
                 }

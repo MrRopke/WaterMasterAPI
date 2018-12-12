@@ -59,12 +59,26 @@ namespace WaterMasterAPI.Controllers
                 {
                     while (reader.Read())
                     {
-                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]) };
+                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]), WaterCount = Convert.ToInt16(reader[5]), LastWater = Convert.ToDateTime(reader[6]) };
                     }
                 }
                 reader.Close();
             }
             return user;
+        }
+
+        [HttpPut]
+        public void UpdateWaterCount(int id)
+        {
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                string sqlString = "UPDATE Users SET WaterCount + 1, LastWater = GETDATE() WHERE Id = '" + id + "'";
+                SqlCommand cmd = new SqlCommand(sqlString, conn);
+
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
