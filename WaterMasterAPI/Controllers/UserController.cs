@@ -59,7 +59,7 @@ namespace WaterMasterAPI.Controllers
                 {
                     while (reader.Read())
                     {
-                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]), WaterCount = Convert.ToInt16(reader[5]), LastWater = Convert.ToDateTime(reader[6]) };
+                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]), WaterCount = Convert.ToInt16(reader[6]), LastWater = Convert.ToDateTime(reader[7]) };
                     }
                 }
                 reader.Close();
@@ -74,7 +74,7 @@ namespace WaterMasterAPI.Controllers
             {
                 conn.Open();
 
-                string sqlString = "UPDATE Users SET WaterCount + 1, LastWater = GETDATE() WHERE Id = '" + id + "'";
+                string sqlString = "UPDATE Users SET WaterCount = WaterCount + 1, LastWater = GETDATE() WHERE Id = '" + id + "'";
                 SqlCommand cmd = new SqlCommand(sqlString, conn);
 
                 cmd.ExecuteNonQuery();
