@@ -59,7 +59,7 @@ namespace WaterMasterAPI.Controllers
                 {
                     while (reader.Read())
                     {
-                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]), WaterCount = Convert.ToInt16(reader[6]), LastWater = Convert.ToDateTime(reader[7]) };
+                        user = new User { Id = id, Username = "", Password = "", Lat = Convert.ToDouble(reader[3]), Lon = Convert.ToDouble(reader[4]), WaterCount = Convert.ToInt16(reader[6]), LastWater = DateTimeOffset.Parse(reader[7].ToString()) };
                     }
                 }
                 reader.Close();
